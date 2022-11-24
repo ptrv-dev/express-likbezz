@@ -24,3 +24,16 @@ export async function create(req: Request, res: Response) {
     return res.status(500).json({ message: 'Post create error 500' });
   }
 }
+
+export async function getAll(req: Request, res: Response) {
+  try {
+    const posts = await PostModel.find().populate(
+      'author',
+      'avatar username email'
+    );
+    return res.json(posts);
+  } catch (error) {
+    console.log(`[Error] Post create error!\n\t${error}`);
+    return res.status(500).json({ message: 'Post create error 500' });
+  }
+}

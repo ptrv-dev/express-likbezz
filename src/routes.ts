@@ -23,6 +23,7 @@ export default function (app: Express) {
   app.post('/auth/login', loginValidation, AuthController.login);
 
   app.post('/post', verifyToken, postCreateValidation, PostController.create);
+  app.get('/post', PostController.getAll);
 
   app.post(
     '/upload',
