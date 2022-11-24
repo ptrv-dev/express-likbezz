@@ -5,3 +5,8 @@ export const registrationValidation = [
   body('username').isLength({ min: 4, max: 64 }),
   body('password').isLength({ min: 8, max: 128 }),
 ];
+
+export const loginValidation = [
+  body('email').isEmail(),
+  body('password').isLength({ min: 8, max: 128 }),
+];

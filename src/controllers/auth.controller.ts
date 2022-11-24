@@ -55,6 +55,43 @@ export async function getMe(req: Request, res: Response) {
   }
 }
 
+export async function login(
+  req: Request<{}, {}, { email: string; password: string }>,
+  res: Response
+) {
+  try {
+    // validation
+    const validation = validationResult(req);
+    if (!validation.isEmpty()) return res.status(400).json(validation);
+
+    // get email and password from request
+    const { email, password } = req.body;
+
+    // find user by email
+    const user = await UserModel.findOne({ email: email });
+    if (!user)
+      return res
+        .status(400)
+        .json({ message: 'Email or password is incorrect.' });
+
+    // check passwords match
+    const passwordMatch = await bcrypt.compare(password, user.password!);
+    if (!passwordMatch)
+      return res
+        .status(400)
+        .json({ message: 'Email or password is incorrect.' });
+
+    // generate token
+    const token = jwt.sign(user._id.toString(), process.env.JWT_SECRET!);
+
+    // return user response with token in cookie
+    return res.cookie('token', token).sendStatus(200);
+  } catch (error) {
+    console.log(`[Error] User login error!\n\t${error}`);
+    return res.status(500).json({ message: 'User login error 500' });
+  }
+}
+
 // export async function sample(req: Request, res: Response) {
 //   return res.json({ message: 'Hello world!' });
 // }

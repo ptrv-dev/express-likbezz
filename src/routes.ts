@@ -4,7 +4,10 @@ import * as AuthController from './controllers/auth.controller';
 
 import { verifyToken } from './middlewares/verifyToken';
 
-import { registrationValidation } from './validations/auth.validation';
+import {
+  loginValidation,
+  registrationValidation,
+} from './validations/auth.validation';
 
 export default function (app: Express) {
   app.post(
@@ -13,4 +16,5 @@ export default function (app: Express) {
     AuthController.registration
   );
   app.get('/auth/me', verifyToken, AuthController.getMe);
+  app.post('/auth/login', loginValidation, AuthController.login);
 }
