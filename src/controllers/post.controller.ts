@@ -25,15 +25,42 @@ export async function create(req: Request, res: Response) {
   }
 }
 
-export async function getAll(req: Request, res: Response) {
+export async function getAll(
+  req: Request<
+    {},
+    {},
+    {},
+    { limit: string; sortBy: string; order: 'asc' | 'desc'; date: string }
+  >,
+  res: Response
+) {
   try {
-    const posts = await PostModel.find().populate(
-      'author',
-      'avatar username email'
-    );
+    const { limit = 0, sortBy = 'views', order = 'asc', date } = req.query;
+
+    let customDate, startDate, endDate;
+    if (date) {
+      customDate = date
+        .split('.')
+        .map((item) => Number(item))
+        .reverse();
+
+      startDate = new Date(customDate.join(','));
+      endDate = new Date(startDate.getTime() + 60 * 60 * 24 * 1000);
+    }
+
+    const posts = await PostModel.find({
+      [date && 'createdAt']: {
+        $gte: startDate,
+        $lt: endDate,
+      },
+    })
+      .populate('author', 'avatar username email')
+      .sort({ [sortBy]: order })
+      .limit(Number(limit))
+      .exec();
     return res.json(posts);
   } catch (error) {
-    console.log(`[Error] Post create error!\n\t${error}`);
-    return res.status(500).json({ message: 'Post create error 500' });
+    console.log(`[Error] Get Posts error!\n\t${error}`);
+    return res.status(500).json({ message: 'Get Posts error 500' });
   }
 }
