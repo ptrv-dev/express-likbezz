@@ -1,6 +1,7 @@
 import { Express } from 'express';
 
 import * as AuthController from './controllers/auth.controller';
+import * as PostController from './controllers/post.controller';
 
 import { verifyToken } from './middlewares/verifyToken';
 
@@ -8,6 +9,7 @@ import {
   loginValidation,
   registrationValidation,
 } from './validations/auth.validation';
+import { postCreateValidation } from './validations/post.validation';
 
 export default function (app: Express) {
   app.post(
@@ -17,4 +19,6 @@ export default function (app: Express) {
   );
   app.get('/auth/me', verifyToken, AuthController.getMe);
   app.post('/auth/login', loginValidation, AuthController.login);
+
+  app.post('/post', verifyToken, postCreateValidation, PostController.create);
 }

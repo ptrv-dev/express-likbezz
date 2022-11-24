@@ -31,7 +31,6 @@ export async function registration(req: Request, res: Response) {
         email: req.body.email,
       })
     ).save();
-    delete newUser.password;
 
     // generate jwt token
     const token = jwt.sign(newUser._id.toString(), process.env.JWT_SECRET!);
