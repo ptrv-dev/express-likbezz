@@ -1,7 +1,16 @@
 import { Express } from 'express';
 
-import * as SampleController from './controllers/sample.controller';
+import * as AuthController from './controllers/auth.controller';
+
+import { verifyToken } from './middlewares/verifyToken';
+
+import { registrationValidation } from './validations/auth.validation';
 
 export default function (app: Express) {
-  app.get('/', SampleController.sample);
+  app.post(
+    '/auth/registration',
+    registrationValidation,
+    AuthController.registration
+  );
+  app.get('/auth/me', verifyToken, AuthController.getMe);
 }

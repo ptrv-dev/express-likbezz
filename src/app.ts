@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
 import routes from './routes';
@@ -16,8 +17,9 @@ const PORT = process.env.PORT || 4444;
 
 // Express config
 const app = express();
-app.use(cors());
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
+app.use(cookieParser());
 
 routes(app);
 
