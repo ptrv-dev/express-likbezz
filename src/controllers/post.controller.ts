@@ -81,15 +81,21 @@ export async function getOne(req: Request<{ postId: string }>, res: Response) {
     // get post from db and check exists
     const post = await PostModel.findByIdAndUpdate(postId, {
       $inc: { views: 1 },
-    }).populate('author', 'avatar username email');
+    })
+      .populate('author', 'avatar username email')
+      .populate({
+        path: 'comments',
+        populate: { path: 'author', select: 'avatar username' },
+      });
     if (!post) return res.status(404).json({ message: "Post doesn't exists" });
 
     // return to user selected post
-    return res.json({
-      ...post,
-      likes: Array.from(post.likes),
-      dislikes: Array.from(post.dislikes),
-    });
+    return res.json(
+      Object.assign(post.toObject(), {
+        likes: Array.from(post.likes),
+        dislikes: Array.from(post.dislikes),
+      })
+    );
   } catch (error) {
     console.log(`[Error] Get one post error!\n\t${error}`);
     return res.status(500).json({ message: 'Get one post error 500' });
