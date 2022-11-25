@@ -64,3 +64,23 @@ export async function getAll(
     return res.status(500).json({ message: 'Get Posts error 500' });
   }
 }
+
+export async function getOne(req: Request<{ postId: string }>, res: Response) {
+  try {
+    // get post id from params
+    const { postId } = req.params;
+
+    // get post from db and check exists
+    const post = await PostModel.findById(postId).populate(
+      'author',
+      'avatar username email'
+    );
+    if (!post) return res.status(404).json({ message: "Post doesn't exists" });
+
+    // return to user selected post
+    return res.json(post);
+  } catch (error) {
+    console.log(`[Error] Get one post error!\n\t${error}`);
+    return res.status(500).json({ message: 'Get one post error 500' });
+  }
+}
