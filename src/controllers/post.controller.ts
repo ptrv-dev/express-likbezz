@@ -30,33 +30,46 @@ export async function getAll(
     {},
     {},
     {},
-    { limit: string; sortBy: string; order: 'asc' | 'desc'; date: string }
+    {
+      limit: string;
+      sortBy: string;
+      order: 'asc' | 'desc';
+      dateFrom: string;
+      dateTo: string;
+    }
   >,
   res: Response
 ) {
   try {
-    const { limit = 0, sortBy = 'views', order = 'asc', date } = req.query;
+    const { limit, sortBy, order, dateFrom, dateTo } = req.query;
 
-    let customDate, startDate, endDate;
-    if (date) {
-      customDate = date
+    let customDateFrom, customDateTo, startDate, endDate;
+    if (dateFrom) {
+      customDateFrom = dateFrom
         .split('.')
         .map((item) => Number(item))
         .reverse();
 
-      startDate = new Date(customDate.join(','));
-      endDate = new Date(startDate.getTime() + 60 * 60 * 24 * 1000);
+      if (dateTo) {
+        customDateTo = dateTo
+          .split('.')
+          .map((item) => Number(item))
+          .reverse();
+      }
+
+      startDate = new Date(customDateFrom.join(','));
+      endDate = new Date(customDateTo ? customDateTo.join(',') : new Date());
     }
 
     const posts = await PostModel.find({
-      [date && 'createdAt']: {
+      [dateFrom && 'createdAt']: {
         $gte: startDate,
         $lt: endDate,
       },
     })
       .populate('author', 'avatar username email')
-      .sort({ [sortBy]: order })
-      .limit(Number(limit))
+      .sort({ [sortBy || 'views']: order })
+      .limit(Number(limit || 0))
       .exec();
 
     return res.json(
