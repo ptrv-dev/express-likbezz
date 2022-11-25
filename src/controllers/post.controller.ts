@@ -58,7 +58,15 @@ export async function getAll(
       .sort({ [sortBy]: order })
       .limit(Number(limit))
       .exec();
-    return res.json(posts);
+
+    return res.json(
+      posts.map((post) => {
+        return Object.assign(post.toObject(), {
+          likes: Array.from(post.likes),
+          dislikes: Array.from(post.dislikes),
+        });
+      })
+    );
   } catch (error) {
     console.log(`[Error] Get Posts error!\n\t${error}`);
     return res.status(500).json({ message: 'Get Posts error 500' });
@@ -71,10 +79,9 @@ export async function getOne(req: Request<{ postId: string }>, res: Response) {
     const { postId } = req.params;
 
     // get post from db and check exists
-    const post = await PostModel.findById(postId).populate(
-      'author',
-      'avatar username email'
-    );
+    const post = await PostModel.findByIdAndUpdate(postId, {
+      $inc: { views: 1 },
+    }).populate('author', 'avatar username email');
     if (!post) return res.status(404).json({ message: "Post doesn't exists" });
 
     // return to user selected post
