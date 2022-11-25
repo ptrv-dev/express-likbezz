@@ -34,3 +34,31 @@ export async function create(req: Request, res: Response) {
     return res.status(500).json({ message: 'Comment create error 500' });
   }
 }
+
+export async function remove(req: Request, res: Response) {
+  try {
+    //
+    // get comment id from query
+    const { commentId } = req.params;
+
+    // get comment from db and exists check
+    const comment = await CommentModel.findById(commentId);
+    if (!comment)
+      return res.status(404).json({ message: "Comment doesn't exists" });
+
+    // check is user author of comment
+    if (String(req.user._id) !== String(comment.author))
+      return res.status(401).json({ message: 'Access denied.' });
+
+    // delete comment from db and array in post
+    await comment.deleteOne();
+    await PostModel.findByIdAndUpdate(comment.post, {
+      $pull: { comments: comment._id },
+    });
+
+    return res.sendStatus(200);
+  } catch (error) {
+    console.log(`[Error] Comment remove error!\n\t${error}`);
+    return res.status(500).json({ message: 'Comment remove error 500' });
+  }
+}

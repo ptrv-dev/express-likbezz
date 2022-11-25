@@ -36,6 +36,7 @@ export default function (app: Express) {
     commentCreateValidation,
     CommentController.create
   );
+  app.delete('/comment/:commentId', verifyToken, CommentController.remove);
 
   app.post(
     '/upload',

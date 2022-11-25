@@ -17,14 +17,12 @@ const CommentSchema = new mongoose.Schema(
       required: true,
     },
     likes: {
-      type: Map,
-      of: Boolean,
-      default: {},
+      type: [mongoose.Types.ObjectId],
+      default: [],
     },
     dislikes: {
-      type: Map,
-      of: Boolean,
-      default: {},
+      type: [mongoose.Types.ObjectId],
+      default: [],
     },
   },
   { timestamps: true }
