@@ -78,9 +78,75 @@ export async function getOne(req: Request<{ postId: string }>, res: Response) {
     if (!post) return res.status(404).json({ message: "Post doesn't exists" });
 
     // return to user selected post
-    return res.json(post);
+    return res.json({
+      ...post,
+      likes: Array.from(post.likes),
+      dislikes: Array.from(post.dislikes),
+    });
   } catch (error) {
     console.log(`[Error] Get one post error!\n\t${error}`);
     return res.status(500).json({ message: 'Get one post error 500' });
+  }
+}
+
+export async function like(req: Request, res: Response) {
+  try {
+    // get post id from params
+    const { postId } = req.params;
+
+    // get post from db and check exists
+    const post = await PostModel.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post doesn't exists" });
+
+    // if user already liked post => remove like
+    if (post.likes.has(req.user._id)) post.likes.delete(req.user._id);
+    // else set like and remove dislike
+    else {
+      post.likes.set(req.user._id.toString(), true);
+      post.dislikes.delete(req.user._id);
+    }
+
+    // save updated post
+    await post.save();
+
+    // return user new likes and dislikes
+    return res.json({
+      likes: Array.from(post.likes),
+      dislikes: Array.from(post.dislikes),
+    });
+  } catch (error) {
+    console.log(`[Error] Like post error!\n\t${error}`);
+    return res.status(500).json({ message: 'Like post error 500' });
+  }
+}
+
+export async function dislike(req: Request, res: Response) {
+  try {
+    // get post id from params
+    const { postId } = req.params;
+
+    // get post from db and check exists
+    const post = await PostModel.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post doesn't exists" });
+
+    // if user already disliked post => remove dislike
+    if (post.dislikes.has(req.user._id)) post.dislikes.delete(req.user._id);
+    // else set dislike and remove like
+    else {
+      post.dislikes.set(req.user._id.toString(), true);
+      post.likes.delete(req.user._id);
+    }
+
+    // save updated post
+    await post.save();
+
+    // return user new likes and dislikes
+    return res.json({
+      likes: Array.from(post.likes),
+      dislikes: Array.from(post.dislikes),
+    });
+  } catch (error) {
+    console.log(`[Error] Like post error!\n\t${error}`);
+    return res.status(500).json({ message: 'Like post error 500' });
   }
 }

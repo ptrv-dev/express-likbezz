@@ -20,12 +20,14 @@ const PostSchema = new mongoose.Schema(
       required: true,
     },
     likes: {
-      type: [mongoose.Types.ObjectId],
-      default: [],
+      type: Map,
+      of: Boolean,
+      default: {},
     },
     dislikes: {
-      type: [mongoose.Types.ObjectId],
-      default: [],
+      type: Map,
+      of: Boolean,
+      default: {},
     },
     views: {
       type: Number,

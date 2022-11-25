@@ -25,6 +25,8 @@ export default function (app: Express) {
   app.post('/post', verifyToken, postCreateValidation, PostController.create);
   app.get('/post', PostController.getAll);
   app.get('/post/:postId', PostController.getOne);
+  app.patch('/post/:postId/like', verifyToken, PostController.like);
+  app.patch('/post/:postId/dislike', verifyToken, PostController.dislike);
 
   app.post(
     '/upload',
