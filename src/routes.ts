@@ -4,6 +4,7 @@ import { upload } from './app';
 import * as AuthController from './controllers/auth.controller';
 import * as PostController from './controllers/post.controller';
 import * as UploadController from './controllers/upload.controller';
+import * as CommentController from './controllers/comment.controller';
 
 import { verifyToken } from './middlewares/verifyToken';
 
@@ -12,6 +13,7 @@ import {
   registrationValidation,
 } from './validations/auth.validation';
 import { postCreateValidation } from './validations/post.validation';
+import { commentCreateValidation } from './validations/comment.validation';
 
 export default function (app: Express) {
   app.post(
@@ -27,6 +29,13 @@ export default function (app: Express) {
   app.get('/post/:postId', PostController.getOne);
   app.patch('/post/:postId/like', verifyToken, PostController.like);
   app.patch('/post/:postId/dislike', verifyToken, PostController.dislike);
+
+  app.post(
+    '/comment',
+    verifyToken,
+    commentCreateValidation,
+    CommentController.create
+  );
 
   app.post(
     '/upload',
