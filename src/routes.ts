@@ -5,6 +5,7 @@ import * as AuthController from './controllers/auth.controller';
 import * as PostController from './controllers/post.controller';
 import * as UploadController from './controllers/upload.controller';
 import * as CommentController from './controllers/comment.controller';
+import * as UserController from './controllers/user.controller';
 
 import { verifyToken } from './middlewares/verifyToken';
 
@@ -29,6 +30,8 @@ export default function (app: Express) {
   app.get('/post/:postId', PostController.getOne);
   app.patch('/post/:postId/like', verifyToken, PostController.like);
   app.patch('/post/:postId/dislike', verifyToken, PostController.dislike);
+
+  app.get('/users', UserController.getAll);
 
   app.post(
     '/comment',
