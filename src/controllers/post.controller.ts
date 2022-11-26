@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 
 import PostModel from '../models/PostModel';
+import UserModel from '../models/UserModel';
 
 export async function create(req: Request, res: Response) {
   try {
@@ -17,6 +18,10 @@ export async function create(req: Request, res: Response) {
         image: req.body.image,
       })
     ).save();
+
+    await UserModel.findByIdAndUpdate(req.user._id, {
+      $push: { posts: newPost._id },
+    });
 
     return res.status(200).json(newPost);
   } catch (error) {
