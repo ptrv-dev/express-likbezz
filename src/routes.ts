@@ -32,6 +32,7 @@ export default function (app: Express) {
   app.patch('/post/:postId/dislike', verifyToken, PostController.dislike);
 
   app.get('/users', UserController.getAll);
+  app.get('/users/:userId', UserController.getOne);
 
   app.post(
     '/comment',

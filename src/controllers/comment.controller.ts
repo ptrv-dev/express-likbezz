@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator';
 
 import CommentModel from '../models/CommentModel';
 import PostModel from '../models/PostModel';
+import UserModel from '../models/UserModel';
 
 export async function create(req: Request, res: Response) {
   try {
@@ -25,6 +26,10 @@ export async function create(req: Request, res: Response) {
 
     // push comment id to array in post
     await post.updateOne({ $push: { comments: newComment._id } });
+    // push comment id to array in user
+    await UserModel.findByIdAndUpdate(req.user._id, {
+      $push: { comments: newComment._id },
+    });
 
     await newComment.populate('author', 'username avatar');
     // return new comment to user
@@ -50,9 +55,12 @@ export async function remove(req: Request, res: Response) {
     if (String(req.user._id) !== String(comment.author))
       return res.status(401).json({ message: 'Access denied.' });
 
-    // delete comment from db and array in post
+    // delete comment from db and array in post and user
     await comment.deleteOne();
     await PostModel.findByIdAndUpdate(comment.post, {
+      $pull: { comments: comment._id },
+    });
+    await UserModel.findByIdAndUpdate(req.user._id, {
       $pull: { comments: comment._id },
     });
 
