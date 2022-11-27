@@ -44,7 +44,7 @@ export async function getOne(req: Request<{ userId: string }>, res: Response) {
     )
       .populate({
         path: 'posts',
-        options: { sort: { ['views']: 'desc' } },
+        options: { sort: { ['views']: 'desc' }, limit: 4 },
       })
       .populate('comments');
 
@@ -52,5 +52,24 @@ export async function getOne(req: Request<{ userId: string }>, res: Response) {
   } catch (error) {
     console.log(`[Error] Get one user error!\n\t${error}`);
     return res.status(500).json({ message: 'Get one user error 500' });
+  }
+}
+
+export async function getUserPosts(req: Request, res: Response) {
+  try {
+    // get user id from params
+    const { userId } = req.params;
+
+    const user = await UserModel.findById(
+      userId,
+      {},
+      { populate: { path: 'posts' } }
+    );
+    if (!user) return res.status(404).json({ message: "User doesn't exists" });
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log(`[Error] Get user posts error!\n\t${error}`);
+    return res.status(500).json({ message: 'Get user posts error 500' });
   }
 }

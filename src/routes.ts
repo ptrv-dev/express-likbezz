@@ -33,6 +33,7 @@ export default function (app: Express) {
 
   app.get('/users', UserController.getAll);
   app.get('/users/:userId', UserController.getOne);
+  app.get('/users/posts/:userId', UserController.getUserPosts);
 
   app.post(
     '/comment',
