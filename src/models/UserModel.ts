@@ -30,6 +30,11 @@ const UserSchema = new mongoose.Schema(
       ref: 'Comment',
       default: [],
     },
+    favorites: {
+      type: [mongoose.Types.ObjectId],
+      ref: 'Post',
+      default: [],
+    },
   },
   { timestamps: true }
 );

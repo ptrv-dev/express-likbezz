@@ -33,7 +33,9 @@ export default function (app: Express) {
 
   app.get('/users', UserController.getAll);
   app.get('/users/:userId', UserController.getOne);
-  app.get('/users/posts/:userId', UserController.getUserPosts);
+  app.get('/users/:userId/posts', UserController.getUserPosts);
+  app.post('/users/favorite/:postId', verifyToken, UserController.postFavorite);
+  app.get('/users/:userId/favorites', UserController.getUserFavorites);
 
   app.post(
     '/comment',

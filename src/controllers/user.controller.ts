@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { SortOrder } from 'mongoose';
+import { ObjectId, ObjectIdSchemaDefinition } from 'mongoose';
 
 import UserModel from '../models/UserModel';
 
@@ -42,10 +42,7 @@ export async function getOne(req: Request<{ userId: string }>, res: Response) {
       {},
       { select: 'avatar username posts comments' }
     )
-      .populate({
-        path: 'posts',
-        options: { sort: { ['views']: 'desc' }, limit: 4 },
-      })
+      .populate('posts')
       .populate('comments');
 
     return res.status(200).json(user);
@@ -67,9 +64,49 @@ export async function getUserPosts(req: Request, res: Response) {
     );
     if (!user) return res.status(404).json({ message: "User doesn't exists" });
 
-    return res.status(200).json(user);
+    return res.status(200).json(user.posts);
   } catch (error) {
     console.log(`[Error] Get user posts error!\n\t${error}`);
     return res.status(500).json({ message: 'Get user posts error 500' });
+  }
+}
+
+export async function postFavorite(req: Request, res: Response) {
+  try {
+    // get user id from params
+    const { postId } = req.params;
+
+    const user = await UserModel.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User doesn't exists" });
+
+    if (user.favorites.includes(postId as any)) {
+      await user.updateOne({ $pull: { favorites: postId } });
+    } else {
+      await user.updateOne({ $push: { favorites: postId } });
+    }
+
+    return res.sendStatus(200);
+  } catch (error) {
+    console.log(`[Error] Add post to favorite error!\n\t${error}`);
+    return res.status(500).json({ message: 'Add post to favorite error 500' });
+  }
+}
+
+export async function getUserFavorites(req: Request, res: Response) {
+  try {
+    // get user id from params
+    const { userId } = req.params;
+
+    const user = await UserModel.findById(userId).populate({
+      path: 'favorites',
+      populate: { path: 'author', select: 'avatar username' },
+    });
+
+    if (!user) return res.status(404).json({ message: "User doesn't exists" });
+
+    return res.status(200).json(user.favorites);
+  } catch (error) {
+    console.log(`[Error] Get user favorites error!\n\t${error}`);
+    return res.status(500).json({ message: 'Get user favorites error 500' });
   }
 }
