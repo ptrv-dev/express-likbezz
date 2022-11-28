@@ -1,5 +1,6 @@
+import { validationResult } from 'express-validator';
 import { Request, Response } from 'express';
-import { ObjectId, ObjectIdSchemaDefinition } from 'mongoose';
+import bcrypt from 'bcrypt';
 
 import UserModel from '../models/UserModel';
 
@@ -108,5 +109,47 @@ export async function getUserFavorites(req: Request, res: Response) {
   } catch (error) {
     console.log(`[Error] Get user favorites error!\n\t${error}`);
     return res.status(500).json({ message: 'Get user favorites error 500' });
+  }
+}
+
+export async function userUpdate(req: Request, res: Response) {
+  try {
+    const validation = validationResult(req);
+    if (!validation.isEmpty()) return res.status(400).json(validation);
+
+    const user = await UserModel.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User doesn't exists" });
+
+    let newPassword;
+
+    if (req.body.newPassword) {
+      if (!req.body.currentPassword)
+        return res
+          .status(400)
+          .json({ message: 'Current password is not specified.' });
+      const passwordMatch = await bcrypt.compare(
+        req.body.currentPassword,
+        user.password
+      );
+      if (!passwordMatch)
+        return res.status(400).json({ message: 'Incorrect current password' });
+      newPassword = await bcrypt.hash(req.body.newPassword, 10);
+    }
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      req.user._id,
+      {
+        avatar: req.body.avatar,
+        username: req.body.username,
+        email: req.body.email,
+        password: newPassword,
+      },
+      { returnDocument: 'after' }
+    );
+
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    console.log(`[Error] User update error!\n\t${error}`);
+    return res.status(500).json({ message: 'User update error 500' });
   }
 }

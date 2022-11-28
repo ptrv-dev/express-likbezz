@@ -15,6 +15,7 @@ import {
 } from './validations/auth.validation';
 import { postCreateValidation } from './validations/post.validation';
 import { commentCreateValidation } from './validations/comment.validation';
+import { userUpdateValidation } from './validations/user.validation';
 
 export default function (app: Express) {
   app.post(
@@ -36,6 +37,12 @@ export default function (app: Express) {
   app.get('/users/:userId/posts', UserController.getUserPosts);
   app.post('/users/favorite/:postId', verifyToken, UserController.postFavorite);
   app.get('/users/:userId/favorites', UserController.getUserFavorites);
+  app.patch(
+    '/users',
+    verifyToken,
+    userUpdateValidation,
+    UserController.userUpdate
+  );
 
   app.post(
     '/comment',
