@@ -28,7 +28,7 @@ export const upload = multer({ storage });
 
 // Express config
 const app = express();
-app.use(cors({ origin: false, credentials: true }));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
