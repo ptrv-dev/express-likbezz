@@ -41,7 +41,7 @@ export async function getOne(req: Request<{ userId: string }>, res: Response) {
     const user = await UserModel.findById(
       userId,
       {},
-      { select: 'avatar username posts comments' }
+      { select: 'avatar username posts comments email' }
     )
       .populate('posts')
       .populate('comments');
