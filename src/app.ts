@@ -28,7 +28,12 @@ export const upload = multer({ storage });
 
 // Express config
 const app = express();
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    credentials: true,
+    origin: ['http://localhost:3000', 'https://react-likbezz.vercel.app'],
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
