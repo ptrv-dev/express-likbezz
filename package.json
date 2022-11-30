@@ -16,7 +16,8 @@
   },
   "scripts": {
     "dev": "nodemon ./src/app.ts",
-    "build": "yarn tsc"
+    "build": "yarn tsc",
+    "start": "node ./dist/app.js"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
